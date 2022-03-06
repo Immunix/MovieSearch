@@ -8,8 +8,7 @@ import retrofit2.http.Query
 
 interface MovieAPI {
 
-    @Headers("api_key: $MOVIE_KEY")
-    @GET("/search/movie")
+    @GET("search/movie?api_key=$MOVIE_KEY")
     suspend fun getMovies(
         @Query("query") query: String
     ): MovieResponse
