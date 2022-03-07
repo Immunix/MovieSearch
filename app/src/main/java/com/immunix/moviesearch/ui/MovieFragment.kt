@@ -5,7 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -32,18 +35,44 @@ class MovieFragment : Fragment(R.layout.fragment_movie), MovieAdapter.OnMovieCli
         movieViewModel.movies.observe(viewLifecycleOwner) { pagingData ->
             movieAdapter.submitData(viewLifecycleOwner.lifecycle, pagingData)
         }
-        movieViewModel.searchMovies("AS")
 
+        //TODO add a check for no data searched yet || add default search
         observeLoadState()
 
         binding.buttonRetry.setOnClickListener {
             movieAdapter.retry()
         }
+
+        setHasOptionsMenu(true)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater.inflate(R.menu.menu_search, menu)
+
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView as SearchView
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    binding.movieRecycler.scrollToPosition(0)
+                    movieViewModel.searchMovies(query)
+                    searchView.clearFocus()
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return true
+            }
+        })
     }
 
     private fun setPagingAdapter() = binding.apply {
@@ -65,6 +94,7 @@ class MovieFragment : Fragment(R.layout.fragment_movie), MovieAdapter.OnMovieCli
             dataInfo.isVisible = loadState.source.refresh is LoadState.Error
             buttonRetry.isVisible = loadState.source.refresh is LoadState.Error
 
+            // search failed to return any matching results
             if (loadState.source.refresh is LoadState.NotLoading &&
                 loadState.append.endOfPaginationReached &&
                 movieAdapter.itemCount < 1
@@ -74,6 +104,17 @@ class MovieFragment : Fragment(R.layout.fragment_movie), MovieAdapter.OnMovieCli
                     .also {
                         dataInfo.text = getString(R.string.no_results)
                     }
+            }
+
+            val error = when {
+                loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
+                loadState.append is LoadState.Error -> loadState.append as LoadState.Error
+                loadState.refresh is LoadState.Error -> loadState.refresh as LoadState.Error
+                else -> null
+            }
+
+            if (error != null) {
+                dataInfo.text = error.error.localizedMessage
             }
         }
     }

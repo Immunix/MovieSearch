@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MovieSearch</string>
     <string name="retry">retry</string>
-    <string name="standard_error">Couldn\'t load data.</string>
-    <string name="no_results">No results found.</string>
+    <string name="standard_error">Couldn\'t load data. Check your internet connection and try again.</string>
+    <string name="no_results">No results found. Try searching for something else, like \"Deadpool\".</string>
+    <string name="search">Search movies</string>
 </resources>
