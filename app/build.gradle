@@ -44,6 +44,10 @@ dependencies {
     def lifecycle_version = "2.4.1"
     def hilt_version = "2.38.1"
     def retrofitVersion = "2.9.0"
+    def paging_version = "3.1.0"
+
+    // Pagination
+    implementation("androidx.paging:paging-runtime:$paging_version")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")

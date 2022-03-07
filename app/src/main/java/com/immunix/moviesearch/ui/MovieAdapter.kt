@@ -2,7 +2,7 @@ package com.immunix.moviesearch.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -11,15 +11,15 @@ import com.immunix.moviesearch.data.model.MovieResult
 import com.immunix.moviesearch.databinding.RecyclerMovieCellBinding
 
 class MovieAdapter(private val listener: OnMovieClickListener) :
-    RecyclerView.Adapter<MovieAdapter.MovieHolder>() {
+    PagingDataAdapter<MovieResult, MovieAdapter.MovieHolder>(MovieComparator) {
 
     inner class MovieHolder(private val binding: RecyclerMovieCellBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         init {
             binding.root.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    listener.onMovieClick(movieList[adapterPosition].id)
+                if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+                    listener.onMovieClick(getItem(bindingAdapterPosition)?.id!!)
                 }
             }
         }
@@ -40,7 +40,7 @@ class MovieAdapter(private val listener: OnMovieClickListener) :
         }
     }
 
-    private val diffCallback = object : DiffUtil.ItemCallback<MovieResult>() {
+    object MovieComparator : DiffUtil.ItemCallback<MovieResult>() {
         override fun areItemsTheSame(oldItem: MovieResult, newItem: MovieResult): Boolean {
             return oldItem.id == newItem.id
         }
@@ -50,17 +50,12 @@ class MovieAdapter(private val listener: OnMovieClickListener) :
         }
     }
 
-    private val differ = AsyncListDiffer(this, diffCallback)
-    var movieList: List<MovieResult>
-        get() = differ.currentList
-        set(value) {
-            differ.submitList(value)
-        }
-
     override fun onBindViewHolder(holder: MovieHolder, position: Int) {
-        val movie = movieList[position]
+        val movie = getItem(position)
 
-        holder.bindMovie(movie)
+        if (movie != null) {
+            holder.bindMovie(movie)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieHolder {
@@ -72,8 +67,6 @@ class MovieAdapter(private val listener: OnMovieClickListener) :
             )
         )
     }
-
-    override fun getItemCount(): Int = movieList.size
 
     interface OnMovieClickListener {
         fun onMovieClick(movieId: Int)

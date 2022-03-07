@@ -6,11 +6,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.paging.LoadState
 import com.immunix.moviesearch.R
 import com.immunix.moviesearch.databinding.FragmentMovieBinding
-import com.immunix.moviesearch.ui.state.MovieState
 import com.immunix.moviesearch.utils.Constants.MOVIE_URL
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,8 +27,18 @@ class MovieFragment : Fragment(R.layout.fragment_movie), MovieAdapter.OnMovieCli
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMovieBinding.bind(view)
 
-        movieAdapter = MovieAdapter(this)
-        observeMovieData()
+        setPagingAdapter()
+
+        movieViewModel.movies.observe(viewLifecycleOwner) { pagingData ->
+            movieAdapter.submitData(viewLifecycleOwner.lifecycle, pagingData)
+        }
+        movieViewModel.searchMovies("AS")
+
+        observeLoadState()
+
+        binding.buttonRetry.setOnClickListener {
+            movieAdapter.retry()
+        }
     }
 
     override fun onDestroyView() {
@@ -35,23 +46,34 @@ class MovieFragment : Fragment(R.layout.fragment_movie), MovieAdapter.OnMovieCli
         _binding = null
     }
 
-    private fun observeMovieData() = binding.apply {
-        movieViewModel.movieData.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is MovieState.Success -> {
-                    progressBar.visibility = View.GONE
-                    movieRecycler.visibility = View.VISIBLE
-                    movieAdapter.movieList = state.movieData.results
-                    movieRecycler.adapter = movieAdapter
-                }
-                is MovieState.Error -> {
-                    progressBar.visibility = View.GONE
-                    movieRecycler.visibility = View.GONE
-                    dataInfo.text = state.errorMsg
-                }
-                MovieState.Loading -> {
-                    progressBar.visibility = View.VISIBLE
-                }
+    private fun setPagingAdapter() = binding.apply {
+        movieAdapter = MovieAdapter(this@MovieFragment)
+        movieRecycler.adapter = movieAdapter.withLoadStateHeaderAndFooter(
+            header = PagingLoadStateAdapter {
+                movieAdapter.retry()
+            },
+            footer = PagingLoadStateAdapter {
+                movieAdapter.retry()
+            }
+        )
+    }
+
+    private fun observeLoadState() = binding.apply {
+        movieAdapter.addLoadStateListener { loadState ->
+            progressBar.isVisible = loadState.source.refresh is LoadState.Loading
+            movieRecycler.isVisible = loadState.source.refresh is LoadState.NotLoading
+            dataInfo.isVisible = loadState.source.refresh is LoadState.Error
+            buttonRetry.isVisible = loadState.source.refresh is LoadState.Error
+
+            if (loadState.source.refresh is LoadState.NotLoading &&
+                loadState.append.endOfPaginationReached &&
+                movieAdapter.itemCount < 1
+            ) {
+                movieRecycler.isVisible = false
+                dataInfo.isVisible = true
+                    .also {
+                        dataInfo.text = getString(R.string.no_results)
+                    }
             }
         }
     }
