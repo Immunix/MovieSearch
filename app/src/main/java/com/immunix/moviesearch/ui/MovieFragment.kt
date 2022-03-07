@@ -12,8 +12,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import com.immunix.moviesearch.R
+import com.immunix.moviesearch.data.model.MovieResult
 import com.immunix.moviesearch.databinding.FragmentMovieBinding
 import com.immunix.moviesearch.utils.Constants.MOVIE_URL
 import dagger.hilt.android.AndroidEntryPoint
@@ -131,5 +133,11 @@ class MovieFragment : Fragment(R.layout.fragment_movie), MovieAdapter.OnMovieCli
 
     override fun onMovieClick(movieId: Int) {
         openWebPage(movieId)
+    }
+
+    override fun onMoreClick(movie: MovieResult) {
+        val action =
+            MovieFragmentDirections.actionMovieFragmentToMovieDetailsFragment(movie, movie.title)
+        findNavController().navigate(action)
     }
 }

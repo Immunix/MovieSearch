@@ -7,5 +7,21 @@
     <fragment
         android:id="@+id/movieFragment"
         android:name="com.immunix.moviesearch.ui.MovieFragment"
-        android:label="MovieFragment" />
+        android:label="@string/app_name">
+        <action
+            android:id="@+id/action_movieFragment_to_movieDetailsFragment"
+            app:destination="@id/movieDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/movieDetailsFragment"
+        android:name="com.immunix.moviesearch.ui.MovieDetailsFragment"
+        android:label="{title}">
+        <argument
+            android:name="movie"
+            app:argType="com.immunix.moviesearch.data.model.MovieResult" />
+
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
 </navigation>

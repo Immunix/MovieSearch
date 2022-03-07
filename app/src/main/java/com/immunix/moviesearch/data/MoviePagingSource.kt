@@ -5,8 +5,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.immunix.moviesearch.data.api.MovieAPI
 import com.immunix.moviesearch.data.model.MovieResult
-import okio.IOException
 import retrofit2.HttpException
+import java.io.IOException
 
 private const val MOVIE_STARTING_PAGE_INDEX = 1
 
