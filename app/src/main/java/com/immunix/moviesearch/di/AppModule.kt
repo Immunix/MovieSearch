@@ -1,7 +1,7 @@
 package com.immunix.moviesearch.di
 
+import com.immunix.moviesearch.BuildConfig
 import com.immunix.moviesearch.data.api.MovieAPI
-import com.immunix.moviesearch.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +18,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

@@ -30,7 +30,7 @@ class MovieAdapter(private val listener: OnMovieClickListener) :
 
         fun bindMovie(movie: MovieResult) = binding.apply {
             movieTitle.text = movie.title
-            movieDetails.text = "Vote count: ${movie.vote_count}"
+            movieDetails.text = "Vote count: ${movie.voteCount}"
         }
     }
 

@@ -14,10 +14,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
+import com.immunix.moviesearch.BuildConfig
 import com.immunix.moviesearch.R
 import com.immunix.moviesearch.data.model.MovieResult
 import com.immunix.moviesearch.databinding.FragmentMovieBinding
-import com.immunix.moviesearch.utils.Constants.MOVIE_URL
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -122,7 +122,7 @@ class MovieFragment : Fragment(R.layout.fragment_movie), MovieAdapter.OnMovieCli
     }
 
     private fun openWebPage(movieId: Int) {
-        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(MOVIE_URL + movieId))
+        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.MOVIE_URL + movieId))
 
         try {
             startActivity(webIntent)
