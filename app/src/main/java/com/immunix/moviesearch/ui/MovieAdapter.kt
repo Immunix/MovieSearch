@@ -5,6 +5,9 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.immunix.moviesearch.BuildConfig
+import com.immunix.moviesearch.R
 import com.immunix.moviesearch.data.model.MovieResult
 import com.immunix.moviesearch.databinding.RecyclerMovieCellBinding
 
@@ -29,8 +32,18 @@ class MovieAdapter(private val listener: OnMovieClickListener) :
         }
 
         fun bindMovie(movie: MovieResult) = binding.apply {
+            if (movie.posterPath.isNullOrEmpty()) {
+                movieImage.load(R.drawable.ic_broken_image)
+            } else {
+                movieImage.load(BuildConfig.IMAGE_URL + movie.posterPath) {
+                    crossfade(true)
+                    error(R.drawable.ic_broken_image)
+                    placeholder(R.drawable.ic_broken_image)
+                }
+            }
+
             movieTitle.text = movie.title
-            movieDetails.text = "Vote count: ${movie.voteCount}"
+            movieDetails.text = movie.overview
         }
     }
 
